@@ -84,16 +84,16 @@ class Point:
             return Point(None, None, self.a, self.b)
         # Points have different x values
         if self.x != other.x:
-            slope = (self.y - other.y)/(self.x=other.x)
+            slope = (self.y - other.y) / (self.x - other.x)
             x3 = slope**2 - self.x - other.x
-            y3 = slope * (self.x - newX) - self.y)
+            y3 = slope * (self.x - x3) - self.y
             return self.__class__(x3, y3, self.a, self.b)
         # Points are the same and y coordinate is 0
-        if self=other and self.y == 0:
+        if self == other and self.y == 0:
             return self.__class__(None, None, self.a, self.b)
         # Points are the same
         if self == other:
-            slopeOfTangent=(3 * self.x**2 + self.a)/(2*self.y)
-            x3=slopeOfTangent**2 - 2 * self.x
-            y3=slopeOfTangent * (self.x - x3) - self.y
+            slopeOfTangent = (3 * self.x**2 + self.a)/(2*self.y)
+            x3 = slopeOfTangent**2 - 2 * self.x
+            y3 = slopeOfTangent * (self.x - x3) - self.y
             return self.__class__(x3, y3, self.a, self.b)
