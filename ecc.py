@@ -1,12 +1,16 @@
-primeOfFiniteField = 2**256 - 2**32 - 977
+# FOR DEMONSTRATION/EDUCATIONAL PURPOSES ONLY.  NOT RANDOM ENOUGH FOR PROD
+from random import randint
+
+PRIME_OF_FINITE_FIELD = 2**256 - 2**32 - 977
+ORDER_OF_CURVE = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 A = 0
 B = 7
+
 # x-coordinate of generator point
 GX = 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+
 # y-coordinate of generator point
 GY = 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
-# "order of" the generator point
-N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 
 
 class Signature:
@@ -85,7 +89,7 @@ class Point:
         if self.x is None:
             return 'Point(infinity)'
         else:
-            return 'Point({},{})_{}_{}'.format(self.x, self.y, self.a, self.b)
+            return 'Point({},{})_{}_{}'.format(self.x.num, self.y.num, self.a, self.b)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y \
@@ -138,7 +142,7 @@ class Point:
 
 class S256Field(FieldElement):
     def __init__(self, num, prime=None):
-        super().__init__(num=num, prime=primeOfFiniteField)
+        super().__init__(num=num, prime=PRIME_OF_FINITE_FIELD)
 
     def __repr__(self):
         return '{:x}'.format(self.num).zfill(64)
@@ -153,9 +157,42 @@ class S256Point(Point):
             super().__init__(x=x, y=y, a=a, b=b)
 
     def __rmul__(self, coef):
-        coefModN = coef % N
+        coefModN = coef % ORDER_OF_CURVE
         return super().__rmul__(coefModN)
+
+    # used to verify S256 points that serve as public keys
+    def verify(self, signatureHash, signature):
+
+        # calculate 1/s using Fermat's little theorem
+        s_inv = pow(signature.s, ORDER_OF_CURVE - 2, ORDER_OF_CURVE)
+        u = signatureHash * s_inv % ORDER_OF_CURVE
+        v = signature.r * s_inv % ORDER_OF_CURVE
+        total = u * G + v * self
+
+        # if the value of the x-coordinate is the same as r, the signature is valid
+        return total.x.num == signature.r
 
 
 # generator point
 G = S256Point(GX, GY)
+
+
+class PrivateKey:
+    def __init__(self, secret):
+        self.secret = secret
+        self.point = secret * G
+
+    def hex(self):
+        return '{:x}'.format(self.secret).zfill(64)
+
+    def sign(self, signatureHash):
+
+        randomNum = randint(0, ORDER_OF_CURVE)
+        r = (randomNum*G).x.num
+        randomNum_inv = pow(randomNum, ORDER_OF_CURVE-2, ORDER_OF_CURVE)
+        s = (signatureHash + r * self.secret) * randomNum_inv % ORDER_OF_CURVE
+
+        if s > ORDER_OF_CURVE/2:
+            s = ORDER_OF_CURVE - s
+
+        return Signature(r, s)
