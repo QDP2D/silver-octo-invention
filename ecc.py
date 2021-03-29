@@ -9,6 +9,15 @@ GY = 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
 N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 
 
+class Signature:
+    def __init__(self, r, s):
+        self.r = r
+        self.s = s
+
+    def __repr__(self):
+        return 'Signature({:x}, {:x})'.format(self.r, self.s)
+
+
 class FieldElement:
     def __init__(self, num, prime):
         if num >= prime or num < 0:
