@@ -1,3 +1,12 @@
+primeOfFiniteField = 2**256 - 2**32 - 977
+A = 0
+B = 7
+
+# Order of the Generator Point
+N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+## G = GeneratorPoint
+
+
 class FieldElement:
     def __init__(self, num, prime):
         if num >= prime or num < 0:
@@ -62,7 +71,10 @@ class Point:
             raise ValueError('({}, {}) is not on the curve'.format(x, y))
 
     def __repr__(self):
-        return 'Point_({},{})_{}_{}'.format(self.x, self.y, self.a, self.b)
+        if self.x is None:
+            return 'Point(infinity)'
+        else:
+            return 'Point({},{})_{}_{}'.format(self.x, self.y, self.a, self.b)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y \
@@ -100,3 +112,35 @@ class Point:
             x3 = slopeOfTangent**2 - 2 * self.x
             y3 = slopeOfTangent * (self.x - x3) - self.y
             return self.__class__(x3, y3, self.a, self.b)
+
+    def __rmul__(self, coef):
+        coefCopy = coef
+        curr = self
+        result = self.__class__(None, None, self.a, self.b)
+        while coefCopy:
+            if coefCopy & 1:
+                result += curr
+            curr += curr
+            coefCopy >>= 1
+        return result
+
+
+class S256Field(FieldElement):
+    def __init__(self, num, prime=None):
+        super().__init__(num=num, prime=primeOfFiniteField)
+
+    def __repr__(self):
+        return '{:x}'.format(self.num).zfill(64)
+
+
+class S256Point(Point):
+    def __init__(self, x, y, a=None, b=None):
+        a, b = S256Field(A), S256Field(B)
+        if type(x) == int:
+            super().__init__(x=S256Field(x), y=S256Field(y), a=a, b=b)
+        else:  # Handle case if initializing with point at infinity
+            super().__init__(x=x, y=y, a=a, b=b)
+
+    def __rmul__(self, coef):
+        coefModN = coef % N
+        return super().__rmul__(coefModN)
