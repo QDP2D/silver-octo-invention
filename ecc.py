@@ -61,6 +61,9 @@ class Point:
         if self.y**2 != self.x**3 + a * x + b:
             raise ValueError('({}, {}) is not on the curve'.format(x, y))
 
+    def __repr__(self):
+        return 'Point_({},{})_{}_{}'.format(self.x, self.y, self.a, self.b)
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y \
             and self.a == other.a and self.b == other.b
