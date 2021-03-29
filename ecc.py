@@ -1,10 +1,12 @@
 primeOfFiniteField = 2**256 - 2**32 - 977
 A = 0
 B = 7
-
-# Order of the Generator Point
+# x-coordinate of generator point
+GX = 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+# y-coordinate of generator point
+GY = 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
+# "order of" the generator point
 N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
-## G = GeneratorPoint
 
 
 class FieldElement:
@@ -138,9 +140,13 @@ class S256Point(Point):
         a, b = S256Field(A), S256Field(B)
         if type(x) == int:
             super().__init__(x=S256Field(x), y=S256Field(y), a=a, b=b)
-        else:  # Handle case if initializing with point at infinity
+        else:  # handle case if initializing with point at infinity
             super().__init__(x=x, y=y, a=a, b=b)
 
     def __rmul__(self, coef):
         coefModN = coef % N
         return super().__rmul__(coefModN)
+
+
+# generator point
+G = S256Point(GX, GY)
