@@ -81,10 +81,10 @@ class Point:
             return self
         # Points are opposite each other over the x-axis (additive inverses)
         if self.x == other.x and self.y != other.y:
-            return Point(None, None, self.a, self.b)
+            return self.__class__(None, None, self.a, self.b)
         # Points have different x values
         if self.x != other.x:
-            slope = (self.y - other.y) / (self.x - other.x)
+            slope = (other.y - self.y) / (other.x - self.x)
             x3 = slope**2 - self.x - other.x
             y3 = slope * (self.x - x3) - self.y
             return self.__class__(x3, y3, self.a, self.b)
